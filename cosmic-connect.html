@@ -1,0 +1,2618 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cosmic Connect</title>
+    <!-- Tailwind CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Phosphor Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/phosphor-icons@1.4.2/src/css/icons.min.css"
+    />
+    <!-- Alpine.js -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.10.5/dist/cdn.min.js"
+      defer
+    ></script>
+    <!-- GSAP for lightweight animations -->
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.11.5/dist/gsap.min.js"></script>
+    <!-- Removed Three.js import as it's no longer needed -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script> -->
+    <style>
+      /* --- Main HTML Scrollbar Styling --- */
+      html {
+        /* Firefox */
+        scrollbar-width: thin; /* Or 'auto' */
+        scrollbar-color: var(--cosmic-indigo) rgba(10, 17, 40, 0.5); /* thumb track */
+      }
+
+      /* WebKit (Chrome, Safari, Edge) */
+      html::-webkit-scrollbar {
+        width: 10px; /* Slightly wider than internal scrollbars */
+        height: 10px;
+      }
+
+      html::-webkit-scrollbar-track {
+        background: rgba(
+          10,
+          17,
+          40,
+          0.5
+        ); /* Dark track, slightly more visible than internal */
+        border-radius: 5px;
+      }
+
+      html::-webkit-scrollbar-thumb {
+        background-color: var(--cosmic-indigo);
+        border-radius: 5px;
+        border: 2px solid rgba(10, 17, 40, 0.5); /* Match track color for border */
+      }
+
+      html::-webkit-scrollbar-thumb:hover {
+        background-color: var(--cosmic-accent);
+      }
+
+      /* Optional: Style scrollbar corner if needed */
+      html::-webkit-scrollbar-corner {
+        background: transparent;
+      }
+      :root {
+        --cosmic-black: #050314;
+        --cosmic-blue: #0a1128;
+        --cosmic-purple: #240046;
+        --cosmic-violet: #3c096c;
+        --cosmic-indigo: #5a189a;
+        --cosmic-accent: #7b2cbf;
+        --cosmic-highlight: #c77dff;
+        --cosmic-glow: #e0aaff;
+        --cosmic-white: #f8f9fa;
+        --cosmic-gradient: linear-gradient(
+          135deg,
+          #240046 0%,
+          #5a189a 50%,
+          #7b2cbf 100%
+        );
+        --cosmic-glow-effect: 0 0 10px rgba(224, 170, 255, 0.5),
+          0 0 20px rgba(224, 170, 255, 0.3), 0 0 30px rgba(224, 170, 255, 0.1);
+      }
+
+      * {
+        transition: all 0.3s ease;
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family: "Rajdhani", sans-serif;
+        background-color: var(--cosmic-black);
+        color: var(--cosmic-white);
+        position: relative;
+        min-height: 100vh;
+        width: 100%;
+        overflow-x: hidden;
+      }
+
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6,
+      .orbitron {
+        font-family: "Orbitron", sans-serif;
+      }
+
+      .stars-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        pointer-events: none;
+        overflow: hidden;
+      }
+
+      .star {
+        position: absolute;
+        background-color: white;
+        border-radius: 50%;
+        opacity: 0.8;
+        animation: twinkle 3s infinite ease-in-out;
+      }
+
+      @keyframes twinkle {
+        0%,
+        100% {
+          opacity: 0.2;
+        }
+        50% {
+          opacity: 1;
+        }
+      }
+
+      .cosmic-bg {
+        background-color: var(--cosmic-black);
+        background-image: radial-gradient(
+            circle at 10% 20%,
+            rgba(90, 24, 154, 0.2) 0%,
+            transparent 40%
+          ),
+          radial-gradient(
+            circle at 80% 40%,
+            rgba(123, 44, 191, 0.15) 0%,
+            transparent 45%
+          ),
+          radial-gradient(
+            circle at 60% 80%,
+            rgba(224, 170, 255, 0.1) 0%,
+            transparent 40%
+          );
+      }
+
+      .cosmic-card {
+        background: rgba(10, 17, 40, 0.75);
+        backdrop-filter: blur(12px) saturate(150%);
+        -webkit-backdrop-filter: blur(12px) saturate(150%);
+        border: 1px solid rgba(123, 44, 191, 0.3);
+        border-radius: 12px;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+
+      .cosmic-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--cosmic-glow-effect);
+        border-color: var(--cosmic-highlight);
+      }
+
+      .cosmic-button {
+        background: var(--cosmic-gradient);
+        color: var(--cosmic-white);
+        font-family: "Orbitron", sans-serif;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      }
+
+      .cosmic-button:hover {
+        box-shadow: 0 0 18px rgba(224, 170, 255, 0.8);
+        transform: translateY(-2px);
+      }
+
+      .cosmic-input {
+        background-color: rgba(10, 17, 40, 0.6);
+        border: 1px solid var(--cosmic-indigo);
+        border-radius: 8px;
+        color: var(--cosmic-white);
+        transition: all 0.3s ease;
+        padding: 10px 15px;
+      }
+
+      .cosmic-input::placeholder {
+        color: rgba(248, 249, 250, 0.5);
+      }
+
+      .cosmic-input:focus {
+        border-color: var(--cosmic-highlight);
+        box-shadow: 0 0 0 3px rgba(224, 170, 255, 0.4);
+        outline: none;
+        background-color: rgba(10, 17, 40, 0.8);
+      }
+
+      .glow-text {
+        text-shadow: 0 0 8px var(--cosmic-glow),
+          0 0 15px var(--cosmic-highlight);
+      }
+
+      @keyframes nebulaDrift {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+
+      @keyframes titleGlowPulse {
+        0%,
+        100% {
+          text-shadow: 0 0 25px rgba(224, 170, 255, 0.4);
+        }
+        50% {
+          text-shadow: 0 0 40px rgba(224, 170, 255, 0.7);
+        }
+      }
+
+      @keyframes buttonGlowPulse {
+        0%,
+        100% {
+          box-shadow: 0 0 20px rgba(123, 44, 191, 0.5);
+        }
+        50% {
+          box-shadow: 0 0 30px rgba(123, 44, 191, 0.8);
+        }
+      }
+
+      .hero-section {
+        min-height: 100vh;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        /* Apply gradient and add animation */
+        background: linear-gradient(
+          135deg,
+          rgba(5, 3, 20, 1) 0%,
+          rgba(36, 0, 70, 0.8) 50%,
+          rgba(5, 3, 20, 1) 100%
+        );
+        background-size: 200% 200%; /* Need larger size for smooth position animation */
+        animation: nebulaDrift 25s ease infinite; /* Adjust duration as needed */
+      }
+
+      .hero-title {
+        font-size: clamp(2.5rem, 10vw, 7rem);
+        line-height: 1.1;
+        margin-bottom: 1.5rem;
+        background: linear-gradient(135deg, #e0aaff 0%, #7b2cbf 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-fill-color: transparent;
+        /* Apply animation */
+        animation: titleGlowPulse 4s ease-in-out infinite;
+      }
+
+      .hero-cta {
+        font-size: clamp(1rem, 2vw, 1.2rem);
+        padding: 1rem 3rem;
+        border-radius: 50px;
+        background: linear-gradient(135deg, #7b2cbf 0%, #3c096c 100%);
+        color: white;
+        font-weight: 600;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+        /* Apply animation */
+        animation: buttonGlowPulse 3s ease-in-out infinite;
+      }
+
+      .hero-cta:hover {
+        transform: translateY(-3px);
+        /* Keep hover distinct from animation */
+        box-shadow: 0 0 35px rgba(123, 44, 191, 1);
+        animation-play-state: paused; /* Optional: Pause animation on hover */
+      }
+
+      /* --- Search Bar Alignment Fix --- */
+
+      /* Apply this specifically to the search input container */
+      .search-input-container {
+        position: relative; /* Keep relative positioning on the container */
+        display: flex; /* Use flexbox */
+        align-items: center; /* Vertically align items */
+      }
+
+      .search-input-icon {
+        position: absolute; /* Icon remains absolute */
+        left: 0.75rem; /* Adjust left padding (pl-3 in rem) */
+        top: 50%; /* Center vertically */
+        transform: translateY(-50%); /* Fine-tune vertical centering */
+        pointer-events: none; /* Prevent icon blocking clicks */
+        color: #9ca3af; /* text-gray-400 */
+        font-size: 1.125rem; /* text-lg */
+        line-height: 1; /* Ensure icon line-height doesn't interfere */
+      }
+
+      .search-input-field {
+        /* Ensure input has padding on the left to not overlap icon */
+        padding-left: 2.5rem; /* pl-10 (adjust based on icon size + desired space) */
+        /* Inherit other cosmic-input styles */
+        width: 100%;
+        border-radius: 9999px; /* rounded-full */
+      }
+      /* Removed unused .planet class */
+
+      .message-bubble {
+        border-radius: 18px;
+        max-width: 80%;
+        position: relative;
+        animation: fadeIn 0.4s ease-out;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      }
+
+      .message-bubble.sent {
+        background: var(--cosmic-gradient);
+        border-bottom-right-radius: 4px;
+        margin-left: auto;
+        color: var(--cosmic-white);
+      }
+
+      .message-bubble.received {
+        background: rgba(10, 17, 40, 0.9);
+        border: 1px solid rgba(123, 44, 191, 0.4);
+        border-bottom-left-radius: 4px;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(15px) scale(0.95);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      .nav-item {
+        position: relative;
+        overflow: hidden;
+        padding: 8px 4px;
+      }
+
+      .nav-item::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 2px;
+        background-color: var(--cosmic-highlight);
+        transition: width 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        box-shadow: 0 0 8px var(--cosmic-highlight);
+      }
+
+      .nav-item:hover::after,
+      .nav-item.active::after {
+        width: 100%;
+      }
+
+      .react-button {
+        transition: all 0.3s ease;
+        color: var(--cosmic-glow);
+      }
+
+      .react-button:hover {
+        transform: scale(1.2);
+        color: var(--cosmic-highlight);
+      }
+
+      .react-button.active {
+        color: var(--cosmic-highlight);
+        transform: scale(1.1);
+      }
+
+      .gradient-text {
+        background: linear-gradient(
+          135deg,
+          var(--cosmic-highlight) 0%,
+          var(--cosmic-glow) 100%
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-fill-color: transparent;
+      }
+
+      /* Removed notification-dot styles as they are no longer used */
+      /* .notification-dot { ... } */
+      /* @keyframes pulseDot { ... } */
+
+      .typing-indicator {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .typing-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: var(--cosmic-highlight);
+        animation: typingBounce 1.4s infinite ease-in-out both;
+      }
+
+      .typing-dot:nth-child(1) {
+        animation-delay: 0s;
+      }
+      .typing-dot:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .typing-dot:nth-child(3) {
+        animation-delay: 0.4s;
+      }
+
+      @keyframes typingBounce {
+        0%,
+        60%,
+        100% {
+          transform: translateY(0) scale(1);
+          opacity: 1;
+        }
+        30% {
+          transform: translateY(-8px) scale(1.1);
+          opacity: 0.7;
+        }
+      }
+
+      /* Custom Scrollbar - applied via .custom-scrollbar class */
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 8px;
+        height: 8px; /* Added height for horizontal scrollbars if needed */
+      }
+
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: rgba(10, 17, 40, 0.3);
+        border-radius: 4px;
+      }
+
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: var(--cosmic-indigo);
+        border-radius: 4px;
+        border: 1px solid rgba(10, 17, 40, 0.5);
+      }
+
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: var(--cosmic-accent);
+      }
+      /* Firefox scrollbar styles (optional but good for cross-browser) */
+      .custom-scrollbar {
+        scrollbar-width: thin;
+        scrollbar-color: var(--cosmic-indigo) rgba(10, 17, 40, 0.3);
+      }
+
+      .cosmic-tooltip {
+        position: relative;
+        display: inline-block;
+      }
+
+      .cosmic-tooltip::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%) translateY(-5px);
+        background: var(--cosmic-indigo);
+        color: var(--cosmic-white);
+        padding: 5px 10px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-family: "Rajdhani", sans-serif;
+        white-space: nowrap;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        z-index: 100;
+      }
+
+      .cosmic-tooltip:hover::after {
+        opacity: 1;
+        visibility: visible;
+        transform: translateX(-50%) translateY(-10px);
+      }
+
+      /* Welcome page specific styles */
+      .hero-section {
+        min-height: 100vh;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        /* Keep the gradient, remove the planet */
+        background: linear-gradient(
+          to bottom,
+          rgba(5, 3, 20, 1) 0%,
+          rgba(36, 0, 70, 0.8) 100%
+        );
+      }
+
+      .hero-content {
+        z-index: 10;
+        position: relative;
+      }
+
+      .hero-title {
+        font-size: clamp(2.5rem, 10vw, 7rem);
+        line-height: 1.1;
+        margin-bottom: 1.5rem;
+        background: linear-gradient(135deg, #e0aaff 0%, #7b2cbf 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-fill-color: transparent;
+        text-shadow: 0 0 30px rgba(224, 170, 255, 0.5);
+      }
+
+      .hero-subtitle {
+        font-size: clamp(1rem, 3vw, 1.5rem);
+        max-width: 800px;
+        margin: 0 auto 3rem;
+        color: rgba(248, 249, 250, 0.9);
+        /* Add animation */
+        opacity: 0; /* Start invisible */
+        animation: fadeInSlideUp 1.2s ease-out 0.6s forwards; /* name duration timing-function delay fill-mode */
+      }
+      @keyframes fadeInSlideUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .hero-cta {
+        font-size: clamp(1rem, 2vw, 1.2rem);
+        padding: 1rem 3rem;
+        border-radius: 50px;
+        background: linear-gradient(135deg, #7b2cbf 0%, #3c096c 100%);
+        color: white;
+        font-weight: 600;
+        letter-spacing: 1px;
+        box-shadow: 0 0 20px rgba(123, 44, 191, 0.5);
+        transition: all 0.3s ease;
+      }
+
+      .hero-cta:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0 30px rgba(123, 44, 191, 0.8);
+      }
+
+      /* Removed hero-planet style */
+      /* .hero-planet { ... } */
+
+      /* Removed hero-stars style (using .stars-container instead) */
+      /* .hero-stars { ... } */
+
+      .space-theme-toggle {
+        position: relative;
+        width: 60px;
+        height: 30px;
+        border-radius: 15px;
+        background: var(--cosmic-blue);
+        border: 1px solid var(--cosmic-indigo);
+        cursor: pointer;
+        overflow: hidden;
+        transition: background-color 0.3s ease;
+      }
+
+      .space-theme-toggle::before {
+        content: "";
+        position: absolute;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: var(--cosmic-highlight);
+        top: 2px;
+        left: 2px;
+        transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        box-shadow: 0 0 10px var(--cosmic-glow);
+      }
+
+      .space-theme-toggle.active::before {
+        transform: translateX(30px);
+        background: var(--cosmic-glow);
+      }
+
+      .page-section {
+        transition: transform 0.7s cubic-bezier(0.65, 0, 0.35, 1),
+          opacity 0.6s ease;
+        will-change: transform, opacity;
+        min-height: 100vh;
+        position: relative;
+        z-index: 1;
+      }
+
+      .page-section.hidden {
+        transform: translateY(60px);
+        opacity: 0;
+        pointer-events: none;
+        position: absolute;
+        width: 100%;
+        display: none !important;
+      }
+
+      .page-section.active {
+        transform: translateY(0);
+        opacity: 1;
+        position: relative;
+      }
+
+      .nebula-bg {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        background-image: radial-gradient(
+            ellipse at 15% 25%,
+            rgba(90, 24, 154, 0.2) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            ellipse at 80% 30%,
+            rgba(123, 44, 191, 0.15) 0%,
+            transparent 45%
+          ),
+          radial-gradient(
+            ellipse at 50% 75%,
+            rgba(224, 170, 255, 0.12) 0%,
+            transparent 40%
+          ),
+          radial-gradient(
+            ellipse at 90% 90%,
+            rgba(58, 9, 108, 0.18) 0%,
+            transparent 55%
+          );
+        filter: blur(60px);
+        z-index: -1;
+        opacity: 0.7;
+        mix-blend-mode: screen;
+        pointer-events: none;
+      }
+
+      .profile-avatar-border {
+        border: 3px solid transparent;
+        background: linear-gradient(var(--cosmic-black), var(--cosmic-black))
+            padding-box,
+          linear-gradient(135deg, var(--cosmic-accent), var(--cosmic-highlight))
+            border-box;
+        transition: all 0.3s ease;
+      }
+
+      .profile-avatar-border:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 15px var(--cosmic-highlight);
+      }
+
+      .online-indicator {
+        position: absolute;
+        bottom: 2px;
+        right: 2px;
+        width: 12px;
+        height: 12px;
+        background-color: #34d399;
+        border-radius: 50%;
+        border: 2px solid var(--cosmic-black);
+        box-shadow: 0 0 5px #34d399;
+      }
+
+      /* Removed 3D Space scene styles */
+      /* #space-scene { ... } */
+
+      /* Features section */
+      .features-section {
+        padding: 6rem 0;
+        position: relative;
+        z-index: 10;
+      }
+
+      .feature-card {
+        border-radius: 16px;
+        padding: 2rem;
+        background: rgba(10, 17, 40, 0.6);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(123, 44, 191, 0.3);
+        transition: all 0.3s ease;
+      }
+
+      .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 0 30px rgba(123, 44, 191, 0.3);
+        border-color: rgba(123, 44, 191, 0.6);
+      }
+
+      .feature-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #3c096c 0%, #5a189a 100%);
+        box-shadow: 0 0 20px rgba(123, 44, 191, 0.4);
+      }
+
+      /* Responsive fix for mobile */
+      @media (max-width: 640px) {
+        .flex-col-mobile {
+          flex-direction: column !important;
+        }
+
+        .w-full-mobile {
+          width: 100% !important;
+        }
+
+        .py-2-mobile {
+          padding-top: 0.5rem !important;
+          padding-bottom: 0.5rem !important;
+        }
+
+        .text-sm-mobile {
+          font-size: 0.875rem !important;
+        }
+
+        .mt-4-mobile {
+          margin-top: 1rem !important;
+        }
+
+        /* Removed hero-planet responsive style */
+        /* .hero-planet { ... } */
+
+        .hero-title {
+          font-size: 2.5rem;
+        }
+
+        .feature-card {
+          margin-bottom: 1.5rem;
+        }
+      }
+
+      /* Exploration section */
+      .explore-section {
+        background: linear-gradient(
+          to bottom,
+          rgba(5, 3, 20, 0.8) 0%,
+          rgba(36, 0, 70, 0.6) 100%
+        );
+        padding: 5rem 0;
+        position: relative;
+        z-index: 10;
+      }
+
+      .explore-card {
+        height: 250px;
+        border-radius: 12px;
+        overflow: hidden;
+        position: relative;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+      }
+
+      .explore-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+      }
+
+      .explore-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: all 0.5s ease;
+      }
+
+      .explore-card:hover img {
+        transform: scale(1.1);
+      }
+
+      .explore-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 1.5rem;
+        background: linear-gradient(to top, rgba(5, 3, 20, 0.9), transparent);
+        transition: all 0.3s ease;
+      }
+
+      .explore-overlay h3 {
+        margin-bottom: 0.5rem;
+        font-size: 1.5rem;
+        font-weight: 700;
+      }
+
+      .explore-card:hover .explore-overlay {
+        padding-bottom: 2rem;
+      }
+    </style>
+  </head>
+  <body
+    x-data="{
+    currentPage: 'welcome',
+    showMenu: false,
+    darkMode: true,
+    // notifications: 3, // Removed notification count state
+    currentChat: null,
+    selectedGroup: null,
+    profileTab: 'posts',
+    messages: [],
+    newMessage: '',
+    isTyping: false,
+    user: {
+        id: 1,
+        name: 'AstroNavigator',
+        avatar: 'https://cdn.jsdelivr.net/gh/Tarikul-Islam-Anik/Animated-Fluent-Emojis/Emojis/Smilies/Alien.png',
+        status: 'online',
+        bio: 'Cosmic explorer | Stargazer | Nebula photographer | Seeking new connections across the void',
+        followers: 2876,
+        following: 431,
+        posts: 87,
+        coverPhoto: 'https://images.unsplash.com/photo-1465101162946-4377e57745c3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1778&q=80'
+    },
+    chats: [
+        // Removed 'unread' property
+        { id: 1, name: 'Nebula Explorer', avatar: 'https://cdn.jsdelivr.net/gh/Tarikul-Islam-Anik/Animated-Fluent-Emojis/Emojis/Smilies/Alien%20Monster.png', lastMessage: 'Did you see the latest JWST images? Mind blowing!', time: '2m ago', online: true },
+        { id: 2, name: 'Star Traveler', avatar: 'https://cdn.jsdelivr.net/gh/Tarikul-Islam-Anik/Animated-Fluent-Emojis/Emojis/Smilies/Robot.png', lastMessage: 'Found an amazing dark sky spot for stargazing this weekend!', time: '1h ago', online: true },
+        { id: 3, name: 'Cosmic Wanderers', avatar: 'https://cdn.jsdelivr.net/gh/Tarikul-Islam-Anik/Animated-Fluent-Emojis/Emojis/Travel%20and%20places/Flying%20Saucer.png', lastMessage: 'Meeting tonight at the virtual observatory?', time: '3h ago', online: false },
+        { id: 5, name: 'Aurora Chasers', avatar: 'https://cdn.jsdelivr.net/gh/Tarikul-Islam-Anik/Animated-Fluent-Emojis/Emojis/Activities/Sparkles.png', lastMessage: 'Northern lights forecast looks promising for tonight!', time: '2d ago', online: false }
+    ],
+    groups: [
+        { id: 101, name: 'Astrophotography Hub', avatar: 'https://cdn.jsdelivr.net/gh/Tarikul-Islam-Anik/Animated-Fluent-Emojis/Emojis/Objects/Camera%20with%20Flash.png', members: 128, lastActive: '5m ago', description: 'Share your best shots of the cosmos and discuss techniques.' },
+        { id: 102, name: 'Deep Space Explorers', avatar: 'https://cdn.jsdelivr.net/gh/Tarikul-Islam-Anik/Animated-Fluent-Emojis/Emojis/Travel%20and%20places/Rocket.png', members: 256, lastActive: '1h ago', description: 'For enthusiasts dreaming of the stars beyond our solar system.' },
+        { id: 103, name: 'Mars Colonization Forum', avatar: 'https://cdn.jsdelivr.net/gh/Tarikul-Islam-Anik/Animated-Fluent-Emojis/Emojis/Travel%20and%20places/Ringed%20Planet.png', members: 512, lastActive: '3h ago', description: 'Discussing the challenges and possibilities of living on Mars.' },
+        { id: 104, name: 'Telescope Geeks', avatar: 'https://cdn.jsdelivr.net/gh/Tarikul-Islam-Anik/Animated-Fluent-Emojis/Emojis/Objects/Telescope.png', members: 94, lastActive: '1d ago', description: 'All about telescopes: building, buying, modifying, and using.' }
+    ],
+    posts: [
+        {
+            id: 1,
+            user: { name: 'AstroNavigator', avatar: 'https://cdn.jsdelivr.net/gh/Tarikul-Islam-Anik/Animated-Fluent-Emojis/Emojis/Smilies/Alien.png' },
+            content: 'Just captured this amazing shot of the Horsehead Nebula last night! The details are incredible with the new filter. #Astrophotography #DeepSpace #Nebula',
+            image: 'https://images.unsplash.com/photo-1534067783941-51c9c23ecefd?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80',
+            likes: 234,
+            comments: 42,
+            liked: false,
+            time: '3h ago'
+        },
+        {
+            id: 2,
+            user: { name: 'AstroNavigator', avatar: 'https://cdn.jsdelivr.net/gh/Tarikul-Islam-Anik/Animated-Fluent-Emojis/Emojis/Smilies/Alien.png' },
+            content: 'The International Space Station passing over my city tonight like a diamond in the sky. Always humbling to see human presence up there. 🚀✨ #ISS #SpaceStation #NightSky #Space',
+            image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1772&q=80',
+            likes: 187,
+            comments: 27,
+            liked: true,
+            time: '7h ago'
+        },
+        
+    ],
+    dummyMessages: [
+        { id: 1, senderId: 1, content: 'Hey! Did you see the latest JWST images of the Pillars of Creation?', time: '10:32 AM', sent: false },
+        { id: 2, senderId: 0, content: 'Yes! Absolutely breathtaking. The level of detail is just unreal.', time: '10:34 AM', sent: true },
+        { id: 3, senderId: 1, content: 'I know, right? It feels like looking into another dimension. Makes you wonder what else is out there.', time: '10:35 AM', sent: false },
+        { id: 4, senderId: 0, content: 'Totally. It puts everything in perspective. Planning any observation nights soon?', time: '10:38 AM', sent: true },
+        { id: 5, senderId: 1, content: 'Thinking about trying to catch the Orion Nebula next week if the clouds cooperate.', time: '10:40 AM', sent: false },
+        { id: 6, senderId: 1, content: 'By the way, are you joining the virtual lecture on exoplanet atmospheres tomorrow?', time: '10:42 AM', sent: false },
+        { id: 7, senderId: 0, content: 'Wouldn\'t miss it! Already got my cosmic coffee ready.', time: '10:45 AM', sent: true },
+        { id: 8, senderId: 1, content: 'Haha, perfect! See you there then.', time: '10:46 AM', sent: false },
+    ],
+    toggleLike(postId) {
+        const post = this.posts.find(p => p.id === postId);
+        if (post) {
+            post.liked = !post.liked;
+            post.likes += post.liked ? 1 : -1;
+        }
+    },
+    selectChat(chatId) {
+        const chat = this.chats.find(c => c.id === chatId);
+        if (chat) {
+            this.currentChat = chat;
+            // Simulate loading messages for this chat
+            this.messages = this.dummyMessages.map(m => ({
+                ...m,
+                sent: m.senderId === 0, // 0 is the current user
+                senderAvatar: m.senderId === 0 ? this.user.avatar : chat.avatar
+            }));
+            this.currentPage = 'chat';
+            // Removed unread count clearing
+            // chat.unread = 0;
+            // this.recalculateNotifications();
+
+            // Scroll to bottom after messages load
+            this.$nextTick(() => {
+                this.scrollToBottom();
+            });
+        }
+    },
+    selectGroup(groupId) {
+        this.selectedGroup = groupId;
+    },
+    sendMessage() {
+        if (this.newMessage.trim() && this.currentChat) {
+            const newMsg = {
+                id: Date.now(), // Use timestamp for unique ID
+                senderId: 0, // Current user
+                content: this.newMessage,
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' }),
+                sent: true,
+                senderAvatar: this.user.avatar
+            };
+            this.messages.push(newMsg);
+            this.newMessage = '';
+            this.isTyping = true; // Show typing indicator
+
+            this.$nextTick(() => {
+                this.scrollToBottom();
+            });
+
+            // Simulate response after 1-3 seconds
+            const responseDelay = Math.random() * 2000 + 1000;
+            setTimeout(() => {
+                const responseMsg = {
+                    id: Date.now() + 1,
+                    senderId: this.currentChat.id,
+                    content: this.generateCosmicResponse(),
+                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' }),
+                    sent: false,
+                    senderAvatar: this.currentChat.avatar
+                };
+                this.messages.push(responseMsg);
+                this.isTyping = false; // Hide typing indicator
+
+                this.$nextTick(() => {
+                    this.scrollToBottom();
+                });
+            }, responseDelay);
+        }
+    },
+    generateCosmicResponse() {
+        const responses = [
+            'Fascinating point! It reminds me of the patterns in spiral galaxies.',
+            'Indeed! The scale of the universe is truly mind-boggling.',
+            'That\'s a stellar observation! Have you read the latest paper on dark matter?',
+            'Intriguing... makes you wonder about the possibilities of interstellar travel.',
+            'Quantum entanglement vibes! ✨ Everything is connected.',
+            'Agreed. We are all made of stardust, after all.',
+            'Excellent perspective! It aligns with the nebular hypothesis.',
+            'Cosmically cool! Let\'s discuss this further at the next star party.',
+        ];
+        return responses[Math.floor(Math.random() * responses.length)];
+    },
+    scrollToBottom() {
+        // Use a more specific selector if needed
+        const chatContainer = document.querySelector('.messages-container');
+        if (chatContainer) {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+    },
+    // Removed recalculateNotifications function
+    // recalculateNotifications() { ... }
+    createRipple(event) {
+        const button = event.currentTarget;
+        const diameter = Math.max(button.clientWidth, button.clientHeight);
+        const radius = diameter / 2;
+        // Ripple effect logic... (Can be simplified or removed if not fully implemented)
+    },
+    navigateTo(page) {
+        this.currentPage = page;
+        this.showMenu = false; // Close menu on navigation
+        // Scroll to top when changing pages
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    },
+    init() {
+        console.log('Cosmic Connect Initializing...');
+        // Create stars for background
+        this.createStars();
+        // Removed 3D Scene initialization
+        // Removed initial notification calculation
+    },
+    createStars() {
+        // Check if stars already exist to avoid duplicates on potential re-init
+        if (document.querySelector('.stars-container')) return;
+
+        const starsContainer = document.createElement('div');
+        starsContainer.className = 'stars-container';
+        document.body.appendChild(starsContainer);
+
+        for (let i = 0; i < 200; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            const size = Math.random() * 2 + 1;
+            star.style.width = `${size}px`;
+            star.style.height = `${size}px`;
+            star.style.left = `${Math.random() * 100}%`;
+            star.style.top = `${Math.random() * 100}%`;
+            star.style.animationDelay = `${Math.random() * 3}s`;
+            starsContainer.appendChild(star);
+        }
+    },
+    // Removed init3DScene function entirely
+    // init3DScene() { ... }
+}"
+    x-init="init()"
+    class="min-h-screen flex flex-col cosmic-bg"
+  >
+    <!-- Nebula Background -->
+    <div class="nebula-bg"></div>
+
+    <!-- Navigation -->
+    <nav
+      x-show="currentPage !== 'welcome'"
+      x-transition:enter="transition ease-out duration-500"
+      x-transition:enter-start="opacity-0 transform -translate-y-full"
+      x-transition:enter-end="opacity-100 transform translate-y-0"
+      x-transition:leave="transition ease-in duration-300"
+      x-transition:leave-start="opacity-100 transform translate-y-0"
+      x-transition:leave-end="opacity-0 transform -translate-y-full"
+      class="bg-opacity-80 backdrop-filter backdrop-blur-lg fixed w-full z-50 px-4 md:px-6 py-3 flex justify-between items-center"
+      style="
+        background-color: rgba(5, 3, 20, 0.85);
+        border-bottom: 1px solid rgba(123, 44, 191, 0.2);
+      "
+    >
+      <div class="flex items-center">
+        <!-- Mobile Menu Button -->
+        <button
+          @click="showMenu = !showMenu"
+          class="md:hidden mr-4 text-gray-300 hover:text-purple-400 transition-colors text-2xl p-1"
+        >
+          <i class="ph ph-list"></i>
+        </button>
+        <!-- Logo/Brand -->
+        <a
+          href="#"
+          @click.prevent="navigateTo('home')"
+          class="flex items-center group"
+        >
+          <i
+            class="ph ph-atom text-3xl mr-2 text-purple-500 group-hover:text-purple-400 transition-colors duration-300"
+          ></i>
+          <span
+            class="orbitron text-xl md:text-2xl gradient-text font-bold tracking-wider"
+            >CosmicConnect</span
+          >
+        </a>
+      </div>
+      <!-- Desktop Navigation Links -->
+      <div class="hidden md:flex items-center space-x-6">
+        <a
+          href="#"
+          @click.prevent="navigateTo('home')"
+          class="nav-item px-2 py-1 font-medium hover:text-purple-400 transition-colors"
+          :class="{'active text-purple-400': currentPage === 'home'}"
+          >Home</a
+        >
+        <a
+          href="#"
+          @click.prevent="navigateTo('messages')"
+          class="nav-item px-2 py-1 font-medium hover:text-purple-400 transition-colors relative"
+          :class="{'active text-purple-400': currentPage === 'messages' || currentPage === 'chat'}"
+        >
+          Messages
+          <!-- Removed notification count span -->
+          <!-- <span x-show="notifications > 0" ...></span> -->
+        </a>
+        <a
+          href="#"
+          @click.prevent="navigateTo('groups')"
+          class="nav-item px-2 py-1 font-medium hover:text-purple-400 transition-colors"
+          :class="{'active text-purple-400': currentPage === 'groups'}"
+          >Groups</a
+        >
+        <a
+          href="#"
+          @click.prevent="navigateTo('profile')"
+          class="nav-item px-2 py-1 font-medium hover:text-purple-400 transition-colors"
+          :class="{'active text-purple-400': currentPage === 'profile'}"
+          >Profile</a
+        >
+      </div>
+      <!-- Right Side Icons -->
+      <div class="flex items-center space-x-4 md:space-x-5">
+        <button
+          class="cosmic-tooltip text-gray-300 hover:text-purple-400 transition-colors"
+          data-tooltip="Search Cosmos"
+        >
+          <i class="ph ph-magnifying-glass text-2xl"></i>
+        </button>
+        <button
+          class="cosmic-tooltip relative text-gray-300 hover:text-purple-400 transition-colors"
+          data-tooltip="Notifications"
+        >
+          <i class="ph ph-bell text-2xl"></i>
+          <!-- Removed notification dot span -->
+          <!-- <span x-show="notifications > 0" class="notification-dot"></span> -->
+        </button>
+        <!-- Profile Avatar Link -->
+        <a
+          href="#"
+          @click.prevent="navigateTo('profile')"
+          class="relative cosmic-tooltip"
+          data-tooltip="My Profile"
+        >
+          <img
+            :src="user.avatar"
+            alt="User avatar"
+            class="w-10 h-10 rounded-full profile-avatar-border"
+          />
+          <span class="online-indicator"></span>
+          <!-- Kept online indicator -->
+        </a>
+      </div>
+    </nav>
+
+    <!-- Mobile menu -->
+    <div
+      x-show="showMenu"
+      x-transition:enter="transition ease-out duration-300"
+      x-transition:enter-start="opacity-0 transform -translate-x-full"
+      x-transition:enter-end="opacity-100 transform translate-x-0"
+      x-transition:leave="transition ease-in duration-300"
+      x-transition:leave-start="opacity-100 transform translate-x-0"
+      x-transition:leave-end="opacity-0 transform -translate-x-full"
+      @click.away="showMenu = false"
+      class="fixed top-0 left-0 bottom-0 w-64 bg-opacity-95 backdrop-filter backdrop-blur-xl p-4 z-50 space-y-4 overflow-y-auto custom-scrollbar md:hidden"
+      style="
+        background-color: rgba(10, 17, 40, 0.98);
+        border-right: 1px solid rgba(123, 44, 191, 0.3);
+      "
+    >
+      <!-- Close Button -->
+      <div class="flex justify-end mb-4">
+        <button
+          @click="showMenu = false"
+          class="text-gray-400 hover:text-white"
+        >
+          <i class="ph ph-x text-2xl"></i>
+        </button>
+      </div>
+      <!-- Menu Links -->
+      <div class="flex flex-col space-y-2">
+        <a
+          href="#"
+          @click.prevent="navigateTo('home')"
+          class="flex items-center p-3 rounded-lg hover:bg-purple-900 hover:bg-opacity-30 transition-colors text-gray-200 hover:text-white"
+          :class="{'bg-purple-900 bg-opacity-40 text-white': currentPage === 'home'}"
+        >
+          <i class="ph ph-house text-xl mr-3 text-purple-400"></i> Home
+        </a>
+        <a
+          href="#"
+          @click.prevent="navigateTo('messages')"
+          class="flex items-center p-3 rounded-lg hover:bg-purple-900 hover:bg-opacity-30 transition-colors relative text-gray-200 hover:text-white"
+          :class="{'bg-purple-900 bg-opacity-40 text-white': currentPage === 'messages' || currentPage === 'chat'}"
+        >
+          <i class="ph ph-chats-circle text-xl mr-3 text-purple-400"></i>
+          Messages
+          <!-- Removed notification count span -->
+          <!-- <span x-show="notifications > 0" ...></span> -->
+        </a>
+        <a
+          href="#"
+          @click.prevent="navigateTo('groups')"
+          class="flex items-center p-3 rounded-lg hover:bg-purple-900 hover:bg-opacity-30 transition-colors text-gray-200 hover:text-white"
+          :class="{'bg-purple-900 bg-opacity-40 text-white': currentPage === 'groups'}"
+        >
+          <i class="ph ph-users-three text-xl mr-3 text-purple-400"></i> Groups
+        </a>
+        <a
+          href="#"
+          @click.prevent="navigateTo('profile')"
+          class="flex items-center p-3 rounded-lg hover:bg-purple-900 hover:bg-opacity-30 transition-colors text-gray-200 hover:text-white"
+          :class="{'bg-purple-900 bg-opacity-40 text-white': currentPage === 'profile'}"
+        >
+          <i class="ph ph-user-circle text-xl mr-3 text-purple-400"></i> Profile
+        </a>
+      </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="flex-1">
+      <!-- New Redesigned Welcome Page -->
+      <section
+        x-show="currentPage === 'welcome'"
+        class="page-section"
+        :class="{'active': currentPage === 'welcome', 'hidden': currentPage !== 'welcome'}"
+      >
+        <!-- Hero Section without 3D Scene -->
+        <div class="hero-section">
+          <!-- Removed 3D Space Scene Canvas -->
+          <!-- <div id="space-scene" class="absolute inset-0 z-0"></div> -->
+
+          <!-- Hero Content -->
+          <div class="hero-content text-center px-4 max-w-6xl mx-auto">
+            <h1 class="hero-title orbitron">Cosmic Connect</h1>
+            <p class="hero-subtitle">
+              Explore the universe with fellow space enthusiasts. Share
+              discoveries, forge connections, and navigate the cosmos together.
+            </p>
+            <button @click="navigateTo('home')" class="hero-cta orbitron">
+              Begin Your Cosmic Journey
+            </button>
+          </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="features-section">
+          <div class="container mx-auto px-4">
+            <h2
+              class="text-4xl md:text-5xl orbitron text-center gradient-text mb-16"
+            >
+              Discover the Universe
+            </h2>
+
+            <div
+              class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto"
+            >
+              <!-- Feature 1 -->
+              <div class="feature-card">
+                <div class="feature-icon">
+                  <i class="ph ph-users-three text-4xl text-white"></i>
+                </div>
+                <h3 class="orbitron text-2xl text-center mb-4 text-purple-300">
+                  Connect
+                </h3>
+                <p class="text-center text-gray-300">
+                  Connect with astronomers, cosmologists, and fellow stargazers
+                  around the world.
+                </p>
+              </div>
+
+              <!-- Feature 2 -->
+              <div class="feature-card">
+                <div class="feature-icon">
+                  <i class="ph ph-telescope text-4xl text-white"></i>
+                </div>
+                <h3 class="orbitron text-2xl text-center mb-4 text-purple-300">
+                  Discover
+                </h3>
+                <p class="text-center text-gray-300">
+                  Discover celestial events, share astronomical photography, and
+                  learn about the cosmos.
+                </p>
+              </div>
+
+              <!-- Feature 3 -->
+              <div class="feature-card">
+                <div class="feature-icon">
+                  <i class="ph ph-planet text-4xl text-white"></i>
+                </div>
+                <h3 class="orbitron text-2xl text-center mb-4 text-purple-300">
+                  Explore
+                </h3>
+                <p class="text-center text-gray-300">
+                  Explore virtual observatories, join mission simulations, and
+                  track space explorations.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Explore Section -->
+        <div class="explore-section">
+          <div class="container mx-auto px-4">
+            <h2 class="text-4xl orbitron text-center gradient-text mb-16">
+              Explore the Cosmos
+            </h2>
+
+            <div
+              class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto"
+            >
+              <!-- Explore Card 1 -->
+              <div class="explore-card">
+                <img
+                  src="https://images.unsplash.com/photo-1614728263952-84ea256f9679?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1774&q=80"
+                  alt="Nebula"
+                />
+                <div class="explore-overlay">
+                  <h3 class="orbitron">Deep Space</h3>
+                  <p class="text-sm text-gray-300">
+                    Discover nebulae, galaxies, and the mysteries beyond.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Explore Card 2 -->
+              <div class="explore-card">
+                <img
+                  src="https://images.unsplash.com/photo-1614313913007-2b4ae8ce32d6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1774&q=80"
+                  alt="Planets"
+                />
+                <div class="explore-overlay">
+                  <h3 class="orbitron">Solar System</h3>
+                  <p class="text-sm text-gray-300">
+                    Explore our planetary neighbors up close.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Explore Card 3 -->
+              <div class="explore-card">
+                <img
+                  src="https://images.unsplash.com/photo-1454789548928-9efd52dc4031?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1780&q=80"
+                  alt="Earth"
+                />
+                <div class="explore-overlay">
+                  <h3 class="orbitron">Earth & Beyond</h3>
+                  <p class="text-sm text-gray-300">
+                    View our planet from the ultimate perspective.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Explore Card 4 -->
+              <div class="explore-card">
+                <img
+                  src="https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1772&q=80"
+                  alt="Space Technology"
+                />
+                <div class="explore-overlay">
+                  <h3 class="orbitron">Space Tech</h3>
+                  <p class="text-sm text-gray-300">
+                    Learn about the technology that takes us beyond Earth.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Join Now CTA -->
+            <div class="text-center mt-20">
+              <button
+                @click="navigateTo('home')"
+                class="cosmic-button py-4 px-10 text-lg"
+              >
+                Launch Your Journey
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Home Page -->
+      <section
+        x-show="currentPage === 'home'"
+        class="page-section pt-16"
+        :class="{'active': currentPage === 'home', 'hidden': currentPage !== 'home'}"
+        x-transition
+      >
+        <div class="container mx-auto px-4 py-8 max-w-7xl">
+          <div class="flex flex-col lg:flex-row gap-6">
+            <!-- Left Sidebar -->
+            <div
+              class="lg:w-1/4 space-y-6 lg:sticky lg:top-20 self-start custom-scrollbar"
+            >
+              <!-- Sticky sidebar & scrollbar -->
+              <div class="cosmic-card p-4">
+                <div class="flex items-center mb-4">
+                  <img
+                    :src="user.avatar"
+                    alt="Profile"
+                    class="w-14 h-14 rounded-full mr-3 profile-avatar-border"
+                  />
+                  <div>
+                    <h3 class="font-semibold text-lg" x-text="user.name"></h3>
+                    <p class="text-sm text-green-400 flex items-center">
+                      <i class="ph-fill ph-circle text-xs mr-1"></i>Online
+                    </p>
+                  </div>
+                </div>
+                <div class="grid grid-cols-3 text-center mb-4 gap-2">
+                  <div>
+                    <div
+                      class="text-xl font-bold orbitron"
+                      x-text="user.posts"
+                    ></div>
+                    <div class="text-xs text-gray-400 uppercase tracking-wider">
+                      Posts
+                    </div>
+                  </div>
+                  <div>
+                    <div
+                      class="text-xl font-bold orbitron"
+                      x-text="user.followers"
+                    ></div>
+                    <div class="text-xs text-gray-400 uppercase tracking-wider">
+                      Followers
+                    </div>
+                  </div>
+                  <div>
+                    <div
+                      class="text-xl font-bold orbitron"
+                      x-text="user.following"
+                    ></div>
+                    <div class="text-xs text-gray-400 uppercase tracking-wider">
+                      Following
+                    </div>
+                  </div>
+                </div>
+                <button
+                  @click="navigateTo('profile')"
+                  class="cosmic-button w-full py-2 text-sm"
+                >
+                  View Profile
+                </button>
+              </div>
+
+              <div class="cosmic-card p-4">
+                <h3 class="orbitron text-lg mb-3 text-purple-300">
+                  Active Connections
+                </h3>
+                <div
+                  class="space-y-3 max-h-60 overflow-y-auto custom-scrollbar pr-2"
+                >
+                  <template
+                    x-for="chat in chats.filter(c => c.online).slice(0, 5)"
+                    :key="chat.id"
+                  >
+                    <div
+                      class="flex items-center p-2 -m-2 hover:bg-purple-900 hover:bg-opacity-30 rounded-lg cursor-pointer transition-colors"
+                      @click="selectChat(chat.id)"
+                    >
+                      <div class="relative flex-shrink-0">
+                        <img
+                          :src="chat.avatar"
+                          alt="Chat avatar"
+                          class="w-10 h-10 rounded-full profile-avatar-border"
+                        />
+                        <span
+                          class="online-indicator"
+                          style="
+                            width: 10px;
+                            height: 10px;
+                            bottom: 1px;
+                            right: 1px;
+                          "
+                        ></span>
+                      </div>
+                      <div class="ml-3 overflow-hidden">
+                        <div
+                          class="font-medium truncate"
+                          x-text="chat.name"
+                        ></div>
+                        <div class="text-xs text-gray-400 truncate">Online</div>
+                      </div>
+                    </div>
+                  </template>
+                </div>
+                <button
+                  @click="navigateTo('messages')"
+                  class="text-purple-400 text-sm w-full text-center mt-3 hover:underline"
+                >
+                  See all messages
+                </button>
+              </div>
+
+              <div class="cosmic-card p-4">
+                <h3 class="orbitron text-lg mb-3 text-purple-300">
+                  Trending Groups
+                </h3>
+                <div
+                  class="space-y-3 max-h-60 overflow-y-auto custom-scrollbar pr-2"
+                >
+                  <template x-for="group in groups.slice(0, 4)" :key="group.id">
+                    <div
+                      class="flex items-center p-2 -m-2 hover:bg-purple-900 hover:bg-opacity-30 rounded-lg cursor-pointer transition-colors"
+                      @click="navigateTo('groups')"
+                    >
+                      <!-- Navigate to groups page for now -->
+                      <img
+                        :src="group.avatar"
+                        alt="Group avatar"
+                        class="w-10 h-10 rounded-full flex-shrink-0"
+                      />
+                      <div class="ml-3 overflow-hidden">
+                        <div
+                          class="font-medium truncate"
+                          x-text="group.name"
+                        ></div>
+                        <div class="text-xs text-gray-400">
+                          <span x-text="group.members"></span> members
+                        </div>
+                      </div>
+                    </div>
+                  </template>
+                </div>
+                <button
+                  @click="navigateTo('groups')"
+                  class="text-purple-400 text-sm w-full text-center mt-3 hover:underline"
+                >
+                  Explore all groups
+                </button>
+              </div>
+            </div>
+
+            <!-- Main Feed -->
+            <div class="lg:w-2/4 space-y-6 custom-scrollbar">
+              <!-- Added scrollbar -->
+              <!-- Create Post -->
+              <div class="cosmic-card p-4">
+                <div class="flex items-center space-x-4">
+                  <img
+                    :src="user.avatar"
+                    alt="User avatar"
+                    class="w-12 h-12 rounded-full profile-avatar-border flex-shrink-0"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Share your cosmic discoveries, Navigator..."
+                    class="cosmic-input flex-1 py-3 px-5 rounded-full cursor-pointer hover:border-purple-500 focus:border-purple-500 focus:shadow-outline-purple transition-colors"
+                  />
+                </div>
+                <div
+                  class="flex justify-around mt-4 pt-3 border-t border-purple-900 border-opacity-50"
+                >
+                  <button
+                    class="flex items-center text-purple-400 hover:text-purple-300 transition-colors py-2 px-3 rounded-md hover:bg-purple-900 hover:bg-opacity-20"
+                  >
+                    <i class="ph ph-image text-xl mr-2"></i> Image/Video
+                  </button>
+                  <button
+                    class="flex items-center text-purple-400 hover:text-purple-300 transition-colors py-2 px-3 rounded-md hover:bg-purple-900 hover:bg-opacity-20"
+                  >
+                    <i class="ph ph-map-pin text-xl mr-2"></i> Location
+                  </button>
+                  <button
+                    class="flex items-center text-purple-400 hover:text-purple-300 transition-colors py-2 px-3 rounded-md hover:bg-purple-900 hover:bg-opacity-20"
+                  >
+                    <i class="ph ph-calendar-plus text-xl mr-2"></i> Event
+                  </button>
+                </div>
+              </div>
+
+              <!-- Posts Feed -->
+              <template x-for="(post, index) in posts" :key="post.id">
+                <div class="cosmic-card overflow-hidden">
+                  <!-- Post Header -->
+                  <div class="p-4 flex items-center space-x-3">
+                    <img
+                      :src="post.user.avatar"
+                      alt="User avatar"
+                      class="w-11 h-11 rounded-full profile-avatar-border"
+                    />
+                    <div class="flex-1">
+                      <div class="font-semibold" x-text="post.user.name"></div>
+                      <div
+                        class="text-xs text-gray-400"
+                        x-text="post.time"
+                      ></div>
+                    </div>
+                    <button
+                      class="text-gray-400 hover:text-purple-400 p-2 -m-2 rounded-full"
+                    >
+                      <i
+                        class="ph ph-dots-three-outline-vertical-fill text-lg"
+                      ></i>
+                    </button>
+                  </div>
+
+                  <!-- Post Content -->
+                  <div class="px-4 pb-3">
+                    <!-- Make hashtags clickable (visual only) -->
+                    <p
+                      class="mb-4 text-gray-200 leading-relaxed whitespace-pre-wrap"
+                      x-html="post.content.replace(/#(\w+)/g, '<span class=\'text-purple-400 cursor-pointer hover:underline\'>#$1</span>')"
+                    ></p>
+                    <div
+                      class="rounded-lg overflow-hidden mb-3 shadow-lg"
+                      x-show="post.image"
+                    >
+                      <img
+                        :src="post.image"
+                        alt="Post image"
+                        class="w-full h-auto max-h-96 object-cover"
+                      />
+                    </div>
+                  </div>
+
+                  <!-- Post Stats -->
+                  <div
+                    class="px-4 py-2 border-t border-b border-purple-900 border-opacity-50 flex justify-between text-sm text-gray-400"
+                  >
+                    <div class="flex items-center space-x-1">
+                      <i class="ph-fill ph-heart text-red-500"></i>
+                      <span x-text="post.likes"></span>
+                      <span>likes</span>
+                    </div>
+                    <button class="hover:underline">
+                      <span x-text="post.comments"></span> comments
+                    </button>
+                  </div>
+
+                  <!-- Post Actions -->
+                  <div class="px-4 py-2 flex justify-around items-center">
+                    <button
+                      class="react-button flex items-center space-x-1 p-2 rounded-md hover:bg-purple-900 hover:bg-opacity-20"
+                      :class="{'active': post.liked}"
+                      @click="toggleLike(post.id)"
+                    >
+                      <i
+                        class="ph-heart text-xl"
+                        :class="post.liked ? 'ph-fill text-red-500' : 'ph'"
+                      ></i>
+                      <span class="text-sm">Like</span>
+                    </button>
+                    <button
+                      class="react-button flex items-center space-x-1 p-2 rounded-md hover:bg-purple-900 hover:bg-opacity-20"
+                    >
+                      <i class="ph ph-chat-circle-dots text-xl"></i>
+                      <span class="text-sm">Comment</span>
+                    </button>
+                    <button
+                      class="react-button flex items-center space-x-1 p-2 rounded-md hover:bg-purple-900 hover:bg-opacity-20"
+                    >
+                      <i class="ph ph-share-network text-xl"></i>
+                      <span class="text-sm">Share</span>
+                    </button>
+                  </div>
+                </div>
+              </template>
+            </div>
+
+            <!-- Right Sidebar -->
+            <div
+              class="lg:w-1/4 space-y-6 lg:sticky lg:top-20 self-start custom-scrollbar"
+            >
+              <!-- Sticky sidebar & scrollbar -->
+              <div class="cosmic-card p-4">
+                <h3 class="orbitron text-lg mb-4 text-purple-300">
+                  Celestial Events
+                </h3>
+                <div class="space-y-4">
+                  <div class="border-l-2 border-purple-600 pl-3 py-1">
+                    <div class="font-medium text-sm mb-1">
+                      Perseid Meteor Shower Peak
+                    </div>
+                    <div class="text-xs text-gray-400">August 12-13, 2024</div>
+                    <a
+                      href="#"
+                      class="text-xs text-purple-400 hover:underline block mt-1"
+                      >View Details</a
+                    >
+                  </div>
+                  <div class="border-l-2 border-blue-500 pl-3 py-1">
+                    <div class="font-medium text-sm mb-1">
+                      Saturn at Opposition
+                    </div>
+                    <div class="text-xs text-gray-400">September 8, 2024</div>
+                    <a
+                      href="#"
+                      class="text-xs text-purple-400 hover:underline block mt-1"
+                      >Observation Tips</a
+                    >
+                  </div>
+                  <div class="border-l-2 border-yellow-400 pl-3 py-1">
+                    <div class="font-medium text-sm mb-1">
+                      Annular Solar Eclipse
+                    </div>
+                    <div class="text-xs text-gray-400">
+                      October 2, 2024 (Visible S. America)
+                    </div>
+                    <a
+                      href="#"
+                      class="text-xs text-purple-400 hover:underline block mt-1"
+                      >Track Path</a
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <div class="cosmic-card p-4">
+                <h3 class="orbitron text-lg mb-4 text-purple-300">
+                  Suggested Voyagers
+                </h3>
+                <div class="space-y-4">
+                  <!-- Dummy suggested contacts -->
+                  <div class="flex items-center space-x-3">
+                    <img
+                      src="https://cdn.jsdelivr.net/gh/Tarikul-Islam-Anik/Animated-Fluent-Emojis/Emojis/Smilies/Smiling%20Face%20with%20Sunglasses.png"
+                      alt="Contact avatar"
+                      class="w-10 h-10 rounded-full profile-avatar-border"
+                    />
+                    <div class="flex-1 overflow-hidden">
+                      <div class="font-medium truncate">Cosmic Voyager</div>
+                      <div class="text-xs text-gray-400">
+                        Astrophysics Enthusiast
+                      </div>
+                    </div>
+                    <button
+                      class="cosmic-button py-1 px-3 text-xs flex-shrink-0"
+                    >
+                      Connect
+                    </button>
+                  </div>
+                  <div class="flex items-center space-x-3">
+                    <img
+                      src="https://cdn.jsdelivr.net/gh/Tarikul-Islam-Anik/Animated-Fluent-Emojis/Emojis/Travel%20and%20places/Milky%20Way.png"
+                      alt="Contact avatar"
+                      class="w-10 h-10 rounded-full profile-avatar-border"
+                    />
+                    <div class="flex-1 overflow-hidden">
+                      <div class="font-medium truncate">Stellar Observer</div>
+                      <div class="text-xs text-gray-400">
+                        Amateur Astronomer
+                      </div>
+                    </div>
+                    <button
+                      class="cosmic-button py-1 px-3 text-xs flex-shrink-0"
+                    >
+                      Connect
+                    </button>
+                  </div>
+                  <div class="flex items-center space-x-3">
+                    <img
+                      src="https://cdn.jsdelivr.net/gh/Tarikul-Islam-Anik/Animated-Fluent-Emojis/Emojis/Smilies/Alien.png"
+                      alt="Contact avatar"
+                      class="w-10 h-10 rounded-full profile-avatar-border"
+                    />
+                    <div class="flex-1 overflow-hidden">
+                      <div class="font-medium truncate">Galaxy Hunter X</div>
+                      <div class="text-xs text-gray-400">
+                        Exoplanet Researcher
+                      </div>
+                    </div>
+                    <button
+                      class="cosmic-button py-1 px-3 text-xs flex-shrink-0"
+                    >
+                      Connect
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="cosmic-card p-4">
+                <h3 class="orbitron text-lg mb-4 text-purple-300">
+                  Cosmic News Feed
+                </h3>
+                <div
+                  class="space-y-4 max-h-60 overflow-y-auto custom-scrollbar pr-2"
+                >
+                  <div
+                    class="border-b border-purple-900 border-opacity-50 pb-3 mb-3"
+                  >
+                    <a
+                      href="#"
+                      class="font-medium text-sm hover:text-purple-300 block mb-1"
+                      >JWST Discovers Most Distant Galaxy Candidate Yet</a
+                    >
+                    <div class="text-xs text-gray-400">
+                      Source: NASA | 2 hours ago
+                    </div>
+                  </div>
+                  <div
+                    class="border-b border-purple-900 border-opacity-50 pb-3 mb-3"
+                  >
+                    <a
+                      href="#"
+                      class="font-medium text-sm hover:text-purple-300 block mb-1"
+                      >SpaceX Starship Completes Successful Test Flight</a
+                    >
+                    <div class="text-xs text-gray-400">
+                      Source: SpaceX | Yesterday
+                    </div>
+                  </div>
+                  <div
+                    class="border-b border-purple-900 border-opacity-50 pb-3 mb-3"
+                  >
+                    <a
+                      href="#"
+                      class="font-medium text-sm hover:text-purple-300 block mb-1"
+                      >Evidence Mounts for Liquid Water Ocean on Enceladus</a
+                    >
+                    <div class="text-xs text-gray-400">
+                      Source: ESA | 3 days ago
+                    </div>
+                  </div>
+                  <div>
+                    <a
+                      href="#"
+                      class="font-medium text-sm hover:text-purple-300 block mb-1"
+                      >New Theory Suggests Dark Energy is Weakening</a
+                    >
+                    <div class="text-xs text-gray-400">
+                      Source: Astrophysical Journal | 4 days ago
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Messages Page -->
+      <section
+        x-show="currentPage === 'messages'"
+        class="page-section pt-16"
+        :class="{'active': currentPage === 'messages', 'hidden': currentPage !== 'messages'}"
+        x-transition
+      >
+        <div class="container mx-auto px-4 py-8 max-w-7xl">
+          <div
+            class="flex flex-col lg:flex-row gap-6"
+            style="min-height: calc(100vh - 200px)"
+          >
+            <!-- Left Sidebar - Contacts List -->
+            <div class="lg:w-1/3 flex flex-col">
+              <div class="cosmic-card p-4 mb-4 flex-shrink-0">
+                <!-- Search and Tabs -->
+                <h2 class="orbitron text-2xl mb-4 text-purple-300">Messages</h2>
+                <!-- Updated Search Bar -->
+                <!-- Messages Page - Search Bar -->
+                <div class="search-input-container mb-4">
+                  <i class="ph ph-magnifying-glass search-input-icon"></i>
+                  <input
+                    type="text"
+                    placeholder="Search contacts or messages..."
+                    class="cosmic-input search-input-field"
+                  />
+                </div>
+                <div
+                  class="flex border-b border-purple-900 border-opacity-50 mb-2"
+                >
+                  <button
+                    class="flex-1 py-2 px-4 text-center font-medium border-b-2 border-purple-500 text-purple-300 transition-colors duration-300"
+                  >
+                    Direct
+                  </button>
+                  <button
+                    class="flex-1 py-2 px-4 text-center font-medium text-gray-500 hover:text-gray-300 border-b-2 border-transparent hover:border-purple-800 transition-colors duration-300"
+                  >
+                    Groups
+                  </button>
+                </div>
+              </div>
+
+              <div
+                class="cosmic-card p-2 flex-1 overflow-y-auto custom-scrollbar"
+              >
+                <!-- Chat List -->
+                <div class="space-y-1">
+                  <template x-for="chat in chats" :key="chat.id">
+                    <div
+                      class="flex items-center p-3 rounded-lg hover:bg-purple-900 hover:bg-opacity-40 cursor-pointer transition-all duration-200"
+                      :class="{'bg-purple-900 bg-opacity-50': currentChat && currentChat.id === chat.id, 'bg-opacity-20': !currentChat || currentChat.id !== chat.id}"
+                      @click="selectChat(chat.id)"
+                    >
+                      <div class="relative flex-shrink-0">
+                        <img
+                          :src="chat.avatar"
+                          alt="Chat avatar"
+                          class="w-12 h-12 rounded-full profile-avatar-border"
+                        />
+                        <span
+                          x-show="chat.online"
+                          class="online-indicator"
+                          style="
+                            width: 10px;
+                            height: 10px;
+                            bottom: 1px;
+                            right: 1px;
+                          "
+                        ></span>
+                      </div>
+                      <div class="ml-3 flex-1 overflow-hidden">
+                        <div class="flex justify-between items-center">
+                          <div
+                            class="font-semibold truncate"
+                            x-text="chat.name"
+                          ></div>
+                          <div
+                            class="text-xs text-gray-500 flex-shrink-0 ml-2"
+                            x-text="chat.time"
+                          ></div>
+                        </div>
+                        <div class="flex justify-between items-center mt-1">
+                          <div
+                            class="text-sm text-gray-400 truncate pr-2"
+                            x-text="chat.lastMessage"
+                          ></div>
+                          <!-- Removed unread count indicator -->
+                          <!-- <span x-show="chat.unread > 0" ...></span> -->
+                        </div>
+                      </div>
+                    </div>
+                  </template>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Side - Chat Introduction/Placeholder -->
+            <div
+              class="lg:w-2/3 flex-1 lg:flex flex-col items-center justify-center cosmic-card p-10"
+              x-show="!currentChat"
+            >
+              <i class="ph ph-chats-circle text-7xl text-purple-700 mb-6"></i>
+              <h2 class="orbitron text-3xl mb-4 text-center gradient-text">
+                Select a Conversation
+              </h2>
+              <p class="text-gray-400 text-center mb-8 max-w-sm">
+                Choose a contact from the left panel to start your cosmic
+                communication or view past messages.
+              </p>
+              <button class="cosmic-button py-2 px-6 flex items-center">
+                <i class="ph ph-plus-circle mr-2"></i> Start New Chat
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Chat Page -->
+      <section
+        x-show="currentPage === 'chat'"
+        class="page-section pt-16"
+        :class="{'active': currentPage === 'chat', 'hidden': currentPage !== 'chat'}"
+        x-transition
+      >
+        <div class="container mx-auto px-4 py-6 max-w-7xl">
+          <div
+            class="cosmic-card overflow-hidden flex flex-col"
+            style="min-height: calc(100vh - 160px)"
+          >
+            <!-- Fixed height for chat window -->
+            <!-- Chat Header -->
+            <div
+              class="p-4 border-b border-purple-900 border-opacity-50 flex items-center space-x-3 flex-shrink-0"
+            >
+              <button
+                class="mr-1 lg:hidden text-gray-300 hover:text-purple-400"
+                @click="currentPage = 'messages'"
+              >
+                <i class="ph ph-arrow-left text-xl"></i>
+              </button>
+              <div class="relative flex-shrink-0">
+                <img
+                  :src="currentChat?.avatar"
+                  alt="Chat avatar"
+                  class="w-11 h-11 rounded-full profile-avatar-border"
+                />
+                <span
+                  x-show="currentChat?.online"
+                  class="online-indicator"
+                  style="width: 10px; height: 10px; bottom: 1px; right: 1px"
+                ></span>
+              </div>
+              <div class="flex-1 overflow-hidden">
+                <div
+                  class="font-semibold truncate"
+                  x-text="currentChat?.name"
+                ></div>
+                <div
+                  class="text-xs"
+                  :class="currentChat?.online ? 'text-green-400' : 'text-gray-500'"
+                  x-text="currentChat?.online ? 'Online' : 'Offline'"
+                ></div>
+              </div>
+              <div class="flex space-x-3 text-gray-400">
+                <button
+                  class="cosmic-tooltip hover:text-purple-400"
+                  data-tooltip="Voice Call"
+                >
+                  <i class="ph ph-phone text-xl"></i>
+                </button>
+                <button
+                  class="cosmic-tooltip hover:text-purple-400"
+                  data-tooltip="Video Call"
+                >
+                  <i class="ph ph-video-camera text-xl"></i>
+                </button>
+                <button
+                  class="cosmic-tooltip hover:text-purple-400"
+                  data-tooltip="Chat Info"
+                >
+                  <i class="ph ph-info text-xl"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Chat Messages -->
+            <div
+              class="flex-1 overflow-y-auto p-4 space-y-5 custom-scrollbar messages-container bg-gradient-to-b from-transparent to-purple-900 to-opacity-5"
+            >
+              <!-- Added subtle gradient & custom scrollbar -->
+              <template x-for="message in messages" :key="message.id">
+                <div
+                  class="flex items-end space-x-2"
+                  :class="{'justify-end': message.sent}"
+                >
+                  <template x-if="!message.sent">
+                    <img
+                      :src="message.senderAvatar"
+                      alt="Avatar"
+                      class="w-8 h-8 rounded-full flex-shrink-0 self-start mt-1 profile-avatar-border"
+                    />
+                  </template>
+                  <div class="max-w-[80%]">
+                    <div
+                      class="message-bubble p-3 text-sm md:text-base"
+                      :class="message.sent ? 'sent' : 'received'"
+                    >
+                      <p
+                        class="whitespace-pre-wrap"
+                        x-text="message.content"
+                      ></p>
+                    </div>
+                    <div
+                      class="text-xs text-gray-500 mt-1 px-1"
+                      :class="message.sent ? 'text-right' : 'text-left'"
+                      x-text="message.time"
+                    ></div>
+                  </div>
+                </div>
+              </template>
+
+              <!-- Typing indicator -->
+              <div class="flex items-end space-x-2" x-show="isTyping">
+                <img
+                  :src="currentChat?.avatar"
+                  alt="Avatar"
+                  class="w-8 h-8 rounded-full flex-shrink-0 self-start profile-avatar-border"
+                />
+                <div class="message-bubble received p-3">
+                  <div class="typing-indicator">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Message Input -->
+            <div
+              class="p-4 border-t border-purple-900 border-opacity-50 flex-shrink-0"
+            >
+              <div class="flex items-center space-x-3">
+                <button
+                  class="text-purple-400 hover:text-purple-300 p-2 rounded-full hover:bg-purple-900 hover:bg-opacity-30"
+                >
+                  <i class="ph ph-paperclip text-xl"></i>
+                </button>
+                <button
+                  class="text-purple-400 hover:text-purple-300 p-2 rounded-full hover:bg-purple-900 hover:bg-opacity-30"
+                >
+                  <i class="ph ph-smiley text-xl"></i>
+                </button>
+                <input
+                  x-model="newMessage"
+                  type="text"
+                  placeholder="Launch your message..."
+                  class="cosmic-input flex-1 py-2 px-4 rounded-full"
+                  @keydown.enter="sendMessage()"
+                />
+                <button
+                  class="cosmic-button p-2.5 rounded-full transform hover:scale-110 transition-transform"
+                  @click="sendMessage()"
+                >
+                  <i class="ph ph-paper-plane-tilt text-xl"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Groups Page -->
+      <section
+        x-show="currentPage === 'groups'"
+        class="page-section pt-16"
+        :class="{'active': currentPage === 'groups', 'hidden': currentPage !== 'groups'}"
+        x-transition
+      >
+        <div class="container mx-auto px-4 py-8 max-w-7xl">
+          <h1 class="orbitron text-3xl mb-8 text-center gradient-text">
+            Explore Cosmic Communities
+          </h1>
+          <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Left Side - Group List & Create -->
+            <div class="lg:w-1/3 space-y-6">
+              <div class="cosmic-card p-4">
+                <h3 class="orbitron text-xl mb-4 text-purple-300">
+                  Find Your Constellation
+                </h3>
+                <!-- Updated Search Bar -->
+                <!-- Groups Page - Search Bar -->
+                <div class="search-input-container mb-4">
+                  <i class="ph ph-magnifying-glass search-input-icon"></i>
+                  <input
+                    type="text"
+                    placeholder="Search groups..."
+                    class="cosmic-input search-input-field"
+                  />
+                </div>
+                <div
+                  class="flex border-b border-purple-900 border-opacity-50 mb-4"
+                >
+                  <button
+                    class="flex-1 py-2 px-4 text-center font-medium border-b-2 border-purple-500 text-purple-300 transition-colors duration-300"
+                  >
+                    My Groups
+                  </button>
+                  <button
+                    class="flex-1 py-2 px-4 text-center font-medium text-gray-500 hover:text-gray-300 border-b-2 border-transparent hover:border-purple-800 transition-colors duration-300"
+                  >
+                    Discover
+                  </button>
+                </div>
+              </div>
+
+              <div class="cosmic-card p-4">
+                <div class="flex justify-between items-center mb-4">
+                  <h3 class="orbitron text-lg text-purple-300">
+                    Create a New Galaxy
+                  </h3>
+                </div>
+                <p class="text-sm text-gray-400 mb-4">
+                  Forge your own community for like-minded cosmic explorers.
+                </p>
+                <button
+                  class="cosmic-button w-full py-2 flex items-center justify-center"
+                >
+                  <i class="ph ph-plus-circle text-lg mr-2"></i> Create New
+                  Group
+                </button>
+              </div>
+            </div>
+
+            <!-- Right Side - Group Grid -->
+            <div class="lg:w-2/3 custom-scrollbar">
+              <!-- Added scrollbar -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <template x-for="(group, index) in groups" :key="group.id">
+                  <div class="cosmic-card p-5 flex flex-col">
+                    <div class="flex items-center mb-4 space-x-4">
+                      <img
+                        :src="group.avatar"
+                        alt="Group avatar"
+                        class="w-16 h-16 rounded-full profile-avatar-border flex-shrink-0"
+                      />
+                      <div class="overflow-hidden">
+                        <h4
+                          class="orbitron text-lg font-semibold truncate"
+                          x-text="group.name"
+                        ></h4>
+                        <div class="text-sm text-gray-400">
+                          <span x-text="group.members"></span> Members
+                        </div>
+                        <div class="text-xs text-gray-500">
+                          Active: <span x-text="group.lastActive"></span>
+                        </div>
+                      </div>
+                    </div>
+                    <p
+                      class="text-sm text-gray-300 mb-4 flex-grow"
+                      x-text="group.description"
+                    ></p>
+                    <div class="flex justify-end space-x-2 mt-auto">
+                      <button
+                        class="cosmic-button py-1.5 px-4 text-sm"
+                        @click="selectGroup(group.id)"
+                      >
+                        View
+                      </button>
+                      <button
+                        class="cosmic-button bg-opacity-70 bg-gradient-to-r from-purple-800 to-indigo-800 hover:bg-opacity-100 py-1.5 px-4 text-sm"
+                      >
+                        Join
+                      </button>
+                    </div>
+                  </div>
+                </template>
+                <!-- Placeholder for more groups or pagination -->
+                <div
+                  class="cosmic-card p-5 flex flex-col items-center justify-center border-2 border-dashed border-purple-800"
+                >
+                  <i class="ph ph-planet text-5xl text-purple-600 mb-4"></i>
+                  <h4 class="orbitron text-lg mb-2">Discover More Groups</h4>
+                  <p class="text-sm text-gray-400 text-center mb-4">
+                    Explore a universe of communities waiting for you.
+                  </p>
+                  <button class="cosmic-button py-1.5 px-4 text-sm">
+                    Browse All
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Profile Page -->
+      <section
+        x-show="currentPage === 'profile'"
+        class="page-section pt-16"
+        :class="{'active': currentPage === 'profile', 'hidden': currentPage !== 'profile'}"
+        x-transition
+      >
+        <div class="container mx-auto px-4 py-8 max-w-7xl">
+          <!-- Profile Header -->
+          <div class="cosmic-card mb-6 overflow-hidden shadow-2xl">
+            <!-- Cover Photo -->
+            <div
+              class="h-48 md:h-64 bg-gradient-to-r from-purple-900 via-indigo-800 to-blue-900 relative group"
+            >
+              <img
+                :src="user.coverPhoto"
+                alt="Cover photo"
+                class="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-300"
+              />
+              <div class="absolute inset-0 bg-black bg-opacity-30"></div>
+              <!-- Subtle overlay -->
+              <button
+                class="absolute bottom-4 right-4 cosmic-button text-xs py-1 px-3 opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <i class="ph ph-camera mr-1"></i> Edit Cover
+              </button>
+            </div>
+
+            <!-- Profile Info -->
+            <div
+              class="px-6 py-4 flex flex-col md:flex-row items-center md:items-end -mt-16 md:-mt-20 relative z-10"
+            >
+              <div class="relative flex-shrink-0 mb-4 md:mb-0">
+                <img
+                  :src="user.avatar"
+                  alt="Profile"
+                  class="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-[color:var(--cosmic-black)] profile-avatar-border hover:shadow-lg transition-all duration-300"
+                />
+                <button
+                  class="absolute bottom-1 right-1 bg-purple-600 hover:bg-purple-500 rounded-full p-1.5 text-white cosmic-tooltip"
+                  data-tooltip="Edit Avatar"
+                >
+                  <i class="ph ph-pencil-simple text-lg"></i>
+                </button>
+                <span
+                  class="online-indicator"
+                  style="width: 18px; height: 18px; bottom: 10px; right: 10px"
+                ></span>
+              </div>
+              <div class="md:ml-6 md:flex-1 text-center md:text-left">
+                <h2
+                  class="orbitron text-3xl font-bold mb-1"
+                  x-text="user.name"
+                ></h2>
+                <p
+                  class="text-gray-400 mb-3 leading-relaxed max-w-xl mx-auto md:mx-0"
+                  x-text="user.bio"
+                ></p>
+                <div
+                  class="flex flex-wrap gap-2 justify-center md:justify-start mb-4"
+                >
+                  <span
+                    class="bg-purple-900 bg-opacity-50 px-3 py-1 rounded-full text-xs font-medium text-purple-300 border border-purple-700"
+                    >#Astrophotographer</span
+                  >
+                  <span
+                    class="bg-purple-900 bg-opacity-50 px-3 py-1 rounded-full text-xs font-medium text-purple-300 border border-purple-700"
+                    >#Stargazer</span
+                  >
+                  <span
+                    class="bg-purple-900 bg-opacity-50 px-3 py-1 rounded-full text-xs font-medium text-purple-300 border border-purple-700"
+                    >#SpaceGeek</span
+                  >
+                </div>
+              </div>
+              <div class="mt-4 md:mt-0 flex space-x-3">
+                <button class="cosmic-button py-2 px-5 flex items-center">
+                  <i class="ph ph-pencil-simple-line mr-2"></i> Edit Profile
+                </button>
+                <button class="cosmic-button p-2.5 rounded-full">
+                  <i class="ph ph-dots-three-outline-fill text-xl"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Profile Stats -->
+            <div
+              class="border-t border-purple-900 border-opacity-50 px-6 py-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-center"
+            >
+              <div>
+                <div
+                  class="text-2xl font-bold orbitron"
+                  x-text="user.posts"
+                ></div>
+                <div class="text-sm text-gray-400 uppercase tracking-wider">
+                  Posts
+                </div>
+              </div>
+              <div>
+                <div
+                  class="text-2xl font-bold orbitron"
+                  x-text="user.followers"
+                ></div>
+                <div class="text-sm text-gray-400 uppercase tracking-wider">
+                  Followers
+                </div>
+              </div>
+              <div>
+                <div
+                  class="text-2xl font-bold orbitron"
+                  x-text="user.following"
+                ></div>
+                <div class="text-sm text-gray-400 uppercase tracking-wider">
+                  Following
+                </div>
+              </div>
+              <div>
+                <div class="text-2xl font-bold orbitron">42</div>
+                <div class="text-sm text-gray-400 uppercase tracking-wider">
+                  Galaxies Visited
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Profile Content Tabs & Sections -->
+          <div class="flex flex-col lg:flex-row gap-6">
+            <!-- Left Side (Info, Badges, Connections) -->
+            <div
+              class="lg:w-1/3 space-y-6 lg:sticky lg:top-20 self-start custom-scrollbar"
+            >
+              <!-- Sticky sidebar & scrollbar -->
+              <!-- About Section -->
+              <div class="cosmic-card p-6">
+                <h3 class="orbitron text-xl mb-5 text-purple-300">
+                  About AstroNavigator
+                </h3>
+                <div class="space-y-4 text-sm">
+                  <div class="flex items-center">
+                    <i
+                      class="ph ph-map-pin text-xl text-purple-400 mr-3 w-5 text-center"
+                    ></i>
+                    <span
+                      >From
+                      <strong class="font-semibold"
+                        >Orion Spur, Milky Way</strong
+                      ></span
+                    >
+                  </div>
+                  <div class="flex items-center">
+                    <i
+                      class="ph ph-briefcase text-xl text-purple-400 mr-3 w-5 text-center"
+                    ></i>
+                    <span
+                      >Chief Stargazer at
+                      <strong class="font-semibold"
+                        >Cosmic Lens Inc.</strong
+                      ></span
+                    >
+                  </div>
+                  <div class="flex items-center">
+                    <i
+                      class="ph ph-calendar-blank text-xl text-purple-400 mr-3 w-5 text-center"
+                    ></i>
+                    <span
+                      >Joined
+                      <strong class="font-semibold"
+                        >March 14, 2021 (Earth Time)</strong
+                      ></span
+                    >
+                  </div>
+                  <div class="flex items-center">
+                    <i
+                      class="ph ph-link text-xl text-purple-400 mr-3 w-5 text-center"
+                    ></i>
+                    <a
+                      href="#"
+                      class="text-purple-400 hover:underline hover:text-purple-300 break-all"
+                      >cosmicnavigator.space</a
+                    >
+                  </div>
+                  <div class="flex items-center">
+                    <i
+                      class="ph ph-quotes text-xl text-purple-400 mr-3 w-5 text-center"
+                    ></i>
+                    <span class="italic text-gray-400"
+                      >"Ad astra per aspera."</span
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <!-- Badges -->
+              <div class="cosmic-card p-6">
+                <div class="flex justify-between items-center mb-4">
+                  <h3 class="orbitron text-lg text-purple-300">
+                    Cosmic Achievements
+                  </h3>
+                  <button class="text-purple-400 text-xs hover:underline">
+                    View All
+                  </button>
+                </div>
+                <div class="flex flex-wrap gap-4 justify-center">
+                  <div
+                    class="text-center cosmic-tooltip"
+                    data-tooltip="Pioneer Voyager (Joined First Year)"
+                  >
+                    <div
+                      class="w-14 h-14 flex items-center justify-center bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full mx-auto mb-1 shadow-lg hover:scale-110 transition-transform"
+                    >
+                      <i class="ph-fill ph-medal text-3xl text-white"></i>
+                    </div>
+                  </div>
+                  <div
+                    class="text-center cosmic-tooltip"
+                    data-tooltip="Nebula Navigator (50+ Posts)"
+                  >
+                    <div
+                      class="w-14 h-14 flex items-center justify-center bg-gradient-to-br from-purple-500 to-indigo-600 rounded-full mx-auto mb-1 shadow-lg hover:scale-110 transition-transform"
+                    >
+                      <i class="ph-fill ph-mountains text-3xl text-white"></i>
+                    </div>
+                  </div>
+                  <div
+                    class="text-center cosmic-tooltip"
+                    data-tooltip="Community Star (1000+ Followers)"
+                  >
+                    <div
+                      class="w-14 h-14 flex items-center justify-center bg-gradient-to-br from-pink-500 to-rose-500 rounded-full mx-auto mb-1 shadow-lg hover:scale-110 transition-transform"
+                    >
+                      <i class="ph-fill ph-star text-3xl text-white"></i>
+                    </div>
+                  </div>
+                  <div
+                    class="text-center cosmic-tooltip"
+                    data-tooltip="Master Photographer (Top Rated Photo)"
+                  >
+                    <div
+                      class="w-14 h-14 flex items-center justify-center bg-gradient-to-br from-cyan-400 to-blue-500 rounded-full mx-auto mb-1 shadow-lg hover:scale-110 transition-transform"
+                    >
+                      <i class="ph-fill ph-camera text-3xl text-white"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Connections -->
+              <div class="cosmic-card p-6">
+                <div class="flex justify-between items-center mb-4">
+                  <h3 class="orbitron text-lg text-purple-300">
+                    Stellar Connections
+                  </h3>
+                  <button class="text-purple-400 text-xs hover:underline">
+                    View All
+                  </button>
+                </div>
+                <div class="grid grid-cols-4 gap-3">
+                  <template
+                    x-for="(friend, index) in chats.slice(0, 8)"
+                    :key="'friend-'+friend.id"
+                  >
+                    <a
+                      href="#"
+                      class="block cosmic-tooltip"
+                      :data-tooltip="friend.name"
+                    >
+                      <img
+                        :src="friend.avatar"
+                        alt="Friend avatar"
+                        class="w-12 h-12 rounded-full profile-avatar-border hover:scale-110 transition-transform"
+                      />
+                    </a>
+                  </template>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Side (Posts, Activity Feed) -->
+            <div class="lg:w-2/3 space-y-6 custom-scrollbar">
+              <!-- Added scrollbar -->
+              <!-- Profile Tabs -->
+              <div class="cosmic-card p-2 mb-6">
+                <div
+                  class="flex justify-around border-b border-purple-900 border-opacity-30"
+                >
+                  <button
+                    class="flex-1 py-3 px-4 text-center font-medium border-b-2 border-purple-500 text-purple-300 transition-colors duration-300 flex items-center justify-center space-x-2"
+                  >
+                    <i class="ph ph-stack"></i> <span>Posts</span>
+                  </button>
+                  <button
+                    class="flex-1 py-3 px-4 text-center font-medium text-gray-500 hover:text-gray-300 border-b-2 border-transparent hover:border-purple-800 transition-colors duration-300 flex items-center justify-center space-x-2"
+                  >
+                    <i class="ph ph-images"></i> <span>Media</span>
+                  </button>
+                  <button
+                    class="flex-1 py-3 px-4 text-center font-medium text-gray-500 hover:text-gray-300 border-b-2 border-transparent hover:border-purple-800 transition-colors duration-300 flex items-center justify-center space-x-2"
+                  >
+                    <i class="ph ph-heart"></i> <span>Likes</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- User's Posts (reuse post template) -->
+              <template
+                x-for="(post, index) in posts.filter(p => p.user.name === user.name || index < 2)"
+                :key="'profile-post-'+post.id"
+              >
+                <!-- Filter or fetch user's posts -->
+                <div class="cosmic-card overflow-hidden">
+                  <!-- Post Header -->
+                  <div class="p-4 flex items-center space-x-3">
+                    <img
+                      :src="user.avatar"
+                      alt="User avatar"
+                      class="w-11 h-11 rounded-full profile-avatar-border"
+                    />
+                    <div class="flex-1">
+                      <div class="font-semibold" x-text="user.name"></div>
+                      <div
+                        class="text-xs text-gray-400"
+                        x-text="post.time"
+                      ></div>
+                    </div>
+                    <button
+                      class="text-gray-400 hover:text-purple-400 p-2 -m-2 rounded-full"
+                    >
+                      <i
+                        class="ph ph-dots-three-outline-vertical-fill text-lg"
+                      ></i>
+                    </button>
+                  </div>
+                  <!-- Post Content -->
+                  <div class="px-4 pb-3">
+                    <p
+                      class="mb-4 text-gray-200 leading-relaxed whitespace-pre-wrap"
+                      x-html="post.content.replace(/#(\w+)/g, '<span class=\'text-purple-400 cursor-pointer hover:underline\'>#$1</span>')"
+                    ></p>
+                    <div
+                      class="rounded-lg overflow-hidden mb-3 shadow-lg"
+                      x-show="post.image"
+                    >
+                      <img
+                        :src="post.image"
+                        alt="Post image"
+                        class="w-full h-auto max-h-96 object-cover"
+                      />
+                    </div>
+                  </div>
+                  <!-- Post Stats/Actions -->
+                  <div
+                    class="px-4 py-2 border-t border-purple-900 border-opacity-50 flex justify-around items-center"
+                  >
+                    <button
+                      class="react-button flex items-center space-x-1 p-2 rounded-md hover:bg-purple-900 hover:bg-opacity-20"
+                      :class="{'active': post.liked}"
+                      @click="toggleLike(post.id)"
+                    >
+                      <i
+                        class="ph-heart text-xl"
+                        :class="post.liked ? 'ph-fill text-red-500' : 'ph'"
+                      ></i>
+                      <span class="text-sm" x-text="post.likes"></span>
+                    </button>
+                    <button
+                      class="react-button flex items-center space-x-1 p-2 rounded-md hover:bg-purple-900 hover:bg-opacity-20"
+                    >
+                      <i class="ph ph-chat-circle-dots text-xl"></i>
+                      <span class="text-sm" x-text="post.comments"></span>
+                    </button>
+                    <button
+                      class="react-button flex items-center space-x-1 p-2 rounded-md hover:bg-purple-900 hover:bg-opacity-20"
+                    >
+                      <i class="ph ph-share-network text-xl"></i>
+                      <span class="text-sm">Share</span>
+                    </button>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer
+      x-show="currentPage !== 'welcome'"
+      class="text-center py-4 mt-8 text-xs text-gray-600 border-t border-purple-900 border-opacity-30"
+    >
+      CosmicConnect &copy; 2024 | Launching Soon | Built with Stardust & Code
+    </footer>
+
+    <!-- Removed the script tag related to Three.js initialization -->
+    <!-- <script> ... </script> -->
+  </body>
+</html>
